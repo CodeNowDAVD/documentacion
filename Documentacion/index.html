@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bienvenido - ContaCloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-800 via-blue-700 to-blue-900 min-h-screen text-white font-sans relative">
+
+  <!-- Audio oculto -->
+  <audio id="musicaFondo" src="audio/audio.mp3" loop></audio>
+
+  <!-- Pantalla de inicio inicial (solo botón) -->
+  <div id="pantallaInicio" class="min-h-screen flex items-center justify-center px-6">
+    <button onclick="iniciar()" class="bg-yellow-400 text-blue-900 font-bold text-lg px-8 py-4 rounded-xl shadow-lg hover:bg-yellow-300 transition">
+      Revisar Documentación
+    </button>
+  </div>
+
+  <!-- Pantalla de bienvenida completa -->
+  <div id="bienvenida" class="hidden min-h-screen flex items-center justify-center px-6">
+    <div class="text-center">
+      <img src="pictures/logo.png" alt="Logo ContaCloud" class="mx-auto w-32 mb-6 animate-pulse">
+
+      <h1 class="text-4xl font-bold mb-2">
+        Bienvenido a <span class="text-yellow-300">ContaCloud S.A.A.</span>
+      </h1>
+      <p class="text-base text-gray-200 mb-8">Sistema contable basado en microservicios - Proyecto académico</p>
+
+      <div class="flex flex-col md:flex-row gap-4 justify-center">
+        <button onclick="cargarContenido('documentacion.html', 'Documentación Técnica')" class="bg-white text-blue-900 font-semibold px-6 py-3 rounded-xl shadow-lg hover:bg-gray-200 transition">
+          Ver Documentación 
+        </button>
+        <button onclick="cargarContenido('manual-usuario.html', 'Diagramas y Modelos')" class="bg-yellow-400 text-blue-900 font-semibold px-6 py-3 rounded-xl shadow-lg hover:bg-yellow-300 transition">
+          Ver Manual de Usuario
+        </button>
+      </div>
+
+      <div class="mt-12 text-xs text-gray-300">
+        © 2025 ContaCloud S.A.A. – Universidad Peruana Unión
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor de contenido dinámico -->
+  <div id="contenedor" class="hidden px-6 py-10 max-w-5xl mx-auto">
+    <div id="contenidoExterno" class="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-12"></div>
+  </div>
+
+  <!-- Botón flotante lateral izquierdo -->
+  <button id="botonLateral" onclick="volverInicio()"
+    class="hidden fixed top-6 left-6 z-50 bg-white text-blue-800 font-semibold px-4 py-2 rounded-full shadow-lg hover:bg-blue-100 transition">
+    ← Volver al Inicio
+  </button>
+
+  <script>
+    function iniciar() {
+      const audio = document.getElementById('musicaFondo');
+      audio.play().then(() => {
+        document.getElementById('pantallaInicio').classList.add('hidden');
+        document.getElementById('bienvenida').classList.remove('hidden');
+      }).catch(err => {
+        alert("El navegador ha bloqueado la reproducción automática. Intenta hacer clic nuevamente.");
+      });
+    }
+
+    function cargarContenido(archivo, nombreSeccion) {
+      fetch(archivo)
+        .then(res => res.text())
+        .then(html => {
+          const contenedor = document.getElementById('contenidoExterno');
+          contenedor.innerHTML = html;
+
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = html;
+          const scripts = tempDiv.querySelectorAll('script');
+          scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            if (oldScript.src) {
+              newScript.src = oldScript.src;
+            } else {
+              newScript.innerHTML = oldScript.innerHTML;
+            }
+            document.body.appendChild(newScript);
+          });
+
+          document.getElementById('bienvenida').classList.add('hidden');
+          document.getElementById('contenedor').classList.remove('hidden');
+
+          const boton = document.getElementById('botonLateral');
+          boton.textContent = `← ${nombreSeccion}`;
+          boton.classList.remove('hidden');
+        })
+        .catch(err => {
+          document.getElementById('contenidoExterno').innerHTML =
+            `<p class="text-red-600">Error al cargar el archivo: ${archivo}</p>`;
+        });
+    }
+
+    function volverInicio() {
+      document.getElementById('contenedor').classList.add('hidden');
+      document.getElementById('bienvenida').classList.remove('hidden');
+      document.getElementById('contenidoExterno').innerHTML = '';
+      document.getElementById('botonLateral').classList.add('hidden');
+    }
+  </script>
+
+</body>
+</html>
